@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Indexing YouTubers and Bloggers</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Indexing YouTubers and Bloggers</h1>
+    <form>
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required>
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required>
+      <label for="type">Type:</label>
+      <select id="type" name="type">
+        <option value="YouTuber">YouTuber</option>
+        <option value="Blogger">Blogger</option>
+      </select>
+      <button type="submit">Submit</button>
+    </form>
+    <div id="results"></div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
