@@ -1,27 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Indexing YouTubers and Bloggers</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="container">
-    <h1>Indexing YouTubers and Bloggers</h1>
+<html>
+  <head>
+    <title>Personal Information Form</title>
+  </head>
+  <body>
+    <h1>Personal Information</h1>
     <form>
       <label for="name">Name:</label>
-      <input type="text" id="name" name="name" required>
+      <input type="text" id="name" name="name"><br>
+
       <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required>
-      <label for="type">Type:</label>
-      <select id="type" name="type">
-        <option value="YouTuber">YouTuber</option>
-        <option value="Blogger">Blogger</option>
-      </select>
-      <button type="submit">Submit</button>
+      <input type="email" id="email" name="email"><br>
+
+      <label for="age">Age:</label>
+      <input type="number" id="age" name="age"><br>
+
+      <label for="gender">Gender:</label>
+      <select id="gender" name="gender">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="nonbinary">Non-binary</option>
+      </select><br>
+
+      <label for="interest">Interest:</label>
+      <select id="interest" name="interest">
+        <option value="vlogger">Vlogger</option>
+        <option value="gaming">Gaming YouTuber</option>
+        <option value="beauty">Beauty YouTuber</option>
+        <!-- Add more options here -->
+      </select><br>
+
+      <button type="button" onclick="saveData()">Save</button>
     </form>
-    <div id="results"></div>
-  </div>
-  <script src="app.js"></script>
-</body>
+
+    <div id="bubble" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);">
+      <h2>Personal Information</h2>
+      <p><strong>Name:</strong> <span id="bubbleName"></span></p>
+      <p><strong>Email:</strong> <span id="bubbleEmail"></span></p>
+      <p><strong>Age:</strong> <span id="bubbleAge"></span></p>
+      <p><strong>Gender:</strong> <span id="bubbleGender"></span></p>
+      <p><strong>Interest:</strong> <span id="bubbleInterest"></span></p>
+    </div>
+
+    <script>
+      function saveData() {
+        var name = document.getElementById("name").value;
+        var email = document.getElementById("email").value;
+        var age = document.getElementById("age").value;
+        var gender = document.getElementById("gender").value;
+        var interest = document.getElementById("interest").value;
+
+        // Update the bubble with the user's information
+        document.getElementById("bubbleName").textContent = name;
+        document.getElementById("bubbleEmail").textContent = email;
+        document.getElementById("bubbleAge").textContent = age;
+        document.getElementById("bubbleGender").textContent = gender;
+        document.getElementById("bubbleInterest").textContent = interest;
+
+        // Show the bubble
+        document.getElementById("bubble").style.display = "block";
+      }
+    </script>
+  </body>
 </html>
