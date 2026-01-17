@@ -16,20 +16,19 @@ function safeText(v) {
   return (v || "").toString().trim();
 }
 
-/**
- * 1) YouTube Shorts API
- * We fetch videos using "shorts" keyword.
- */
 app.get("/api/youtube", async (req, res) => {
   try {
-    const q = safeText(req.query.q || "shorts");
+    const q = safeText(req.query.q || "trending shorts");
     const max = Math.min(parseInt(req.query.max || "10", 10), 25);
+    const pageToken = safeText(req.query.pageToken || "");
 
-    const url =
+    let url =
       `https://www.googleapis.com/youtube/v3/search` +
       `?part=snippet&type=video&maxResults=${max}` +
       `&q=${encodeURIComponent(q)}` +
       `&key=${process.env.YOUTUBE_API_KEY}`;
+
+    if (pageToken) url += `&pageToken=${encodeURIComponent(pageToken)}`;
 
     const r = await fetchFn(url);
     const data = await r.json();
@@ -45,7 +44,10 @@ app.get("/api/youtube", async (req, res) => {
       link: `https://www.youtube.com/shorts/${x.id?.videoId}`
     }));
 
-    res.json({ items });
+    res.json({
+      items,
+      nextPageToken: data.nextPageToken || null
+    });
   } catch (e) {
     res.status(500).json({ error: "YouTube fetch failed", details: e.message });
   }
