@@ -1,65 +1,220 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Personal Information Form</title>
-  </head>
-  <body>
-    <h1>Personal Information</h1>
-    <form>
-      <label for="name">Name:</label>
-      <input type="text" id="name" name="name"><br>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ReelSwipe v2</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+    body{background:#0b0f1a;color:#fff}
+    .topbar{
+      position:sticky;top:0;z-index:99;
+      background:rgba(11,15,26,.9);
+      backdrop-filter: blur(10px);
+      padding:14px 16px;
+      display:flex;align-items:center;justify-content:space-between;
+      border-bottom:1px solid rgba(255,255,255,.08)
+    }
+    .brand{font-size:20px;font-weight:900}
+    .brand span{color:#00d4ff}
+    .controls{display:flex;gap:10px;align-items:center}
+    input,select{
+      padding:8px 10px;border-radius:10px;border:none;outline:none;
+      background:rgba(255,255,255,.08);color:#fff
+    }
+    .tabs{
+      display:flex;gap:10px;padding:12px 14px;overflow-x:auto;
+      border-bottom:1px solid rgba(255,255,255,.08)
+    }
+    .tab{
+      padding:8px 14px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05);
+      color:#fff;cursor:pointer;white-space:nowrap;font-size:13px
+    }
+    .tab.active{background:#00d4ff;color:#000;font-weight:800}
+    .feed{padding:14px;display:flex;flex-direction:column;gap:16px}
+    .card{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;overflow:hidden;
+      box-shadow:0 10px 30px rgba(0,0,0,.35)
+    }
+    .card-header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px}
+    .title{font-size:14px;font-weight:800;max-width:75%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .platform{font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+    .video-box{width:100%;aspect-ratio:9/16;background:#000;position:relative}
+    iframe,video{width:100%;height:100%;border:0}
+    .card-footer{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;gap:10px}
+    .meta{font-size:12px;opacity:.8}
+    .btn{
+      padding:8px 10px;border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:#fff;cursor:pointer;font-size:12px
+    }
+    .btn:hover{background:rgba(255,255,255,.10)}
+    .footer{text-align:center;padding:18px 10px;font-size:12px;opacity:.7}
+    .tabs::-webkit-scrollbar{display:none}
+  </style>
+</head>
+<body>
 
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email"><br>
+  <div class="topbar">
+    <div class="brand">Reel<span>Swipe</span> v2</div>
 
-      <label for="age">Age:</label>
-      <input type="number" id="age" name="age"><br>
+    <div class="controls">
+      <select id="source">
+        <option value="youtube">YouTube Shorts</option>
+        <option value="reddit">Reddit Videos</option>
+        <option value="pexels">Pexels Videos</option>
+        <option value="pixabay">Pixabay Videos</option>
+      </select>
 
-      <label for="gender">Gender:</label>
-      <select id="gender" name="gender">
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-        <option value="nonbinary">Non-binary</option>
-      </select><br>
-
-      <label for="interest">Interest:</label>
-      <select id="interest" name="interest">
-        <option value="vlogger">Vlogger</option>
-        <option value="gaming">Gaming YouTuber</option>
-        <option value="beauty">Beauty YouTuber</option>
-        <!-- Add more options here -->
-      </select><br>
-
-      <button type="button" onclick="saveData()">Save</button>
-    </form>
-
-    <div id="bubble" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);">
-      <h2>Personal Information</h2>
-      <p><strong>Name:</strong> <span id="bubbleName"></span></p>
-      <p><strong>Email:</strong> <span id="bubbleEmail"></span></p>
-      <p><strong>Age:</strong> <span id="bubbleAge"></span></p>
-      <p><strong>Gender:</strong> <span id="bubbleGender"></span></p>
-      <p><strong>Interest:</strong> <span id="bubbleInterest"></span></p>
+      <input id="query" placeholder="Search..." />
+      <button class="btn" id="loadBtn">Load</button>
     </div>
+  </div>
 
-    <script>
-      function saveData() {
-        var name = document.getElementById("name").value;
-        var email = document.getElementById("email").value;
-        var age = document.getElementById("age").value;
-        var gender = document.getElementById("gender").value;
-        var interest = document.getElementById("interest").value;
+  <div class="tabs">
+    <button class="tab active" data-q="trending">Trending</button>
+    <button class="tab" data-q="travel">Travel</button>
+    <button class="tab" data-q="business">Business</button>
+    <button class="tab" data-q="food">Food</button>
+    <button class="tab" data-q="funny">Funny</button>
+    <button class="tab" data-q="motivation">Motivation</button>
+  </div>
 
-        // Update the bubble with the user's information
-        document.getElementById("bubbleName").textContent = name;
-        document.getElementById("bubbleEmail").textContent = email;
-        document.getElementById("bubbleAge").textContent = age;
-        document.getElementById("bubbleGender").textContent = gender;
-        document.getElementById("bubbleInterest").textContent = interest;
+  <div class="feed" id="feed"></div>
 
-        // Show the bubble
-        document.getElementById("bubble").style.display = "block";
+  <div class="footer">
+    ReelSwipe v2 © 2026 | Auto fetch from YouTube + Reddit + Pexels + Pixabay
+  </div>
+
+<script>
+  const feed = document.getElementById("feed");
+  const source = document.getElementById("source");
+  const query = document.getElementById("query");
+  const loadBtn = document.getElementById("loadBtn");
+  const tabs = document.querySelectorAll(".tab");
+
+  let currentQ = "trending";
+
+  tabs.forEach(t => {
+    t.addEventListener("click", () => {
+      tabs.forEach(x => x.classList.remove("active"));
+      t.classList.add("active");
+      currentQ = t.dataset.q;
+      query.value = currentQ;
+      loadContent();
+    });
+  });
+
+  async function loadContent() {
+    feed.innerHTML = `<div style="opacity:.8;padding:16px;">Loading...</div>`;
+
+    const q = query.value.trim() || currentQ;
+    const s = source.value;
+
+    let url = "";
+
+    if (s === "youtube") url = `/api/youtube?q=${encodeURIComponent(q)}&max=12`;
+    if (s === "pexels") url = `/api/pexels?q=${encodeURIComponent(q)}&perPage=12`;
+    if (s === "pixabay") url = `/api/pixabay?q=${encodeURIComponent(q)}&perPage=12`;
+    if (s === "reddit") url = `/api/reddit?subreddit=${encodeURIComponent("videos")}&limit=15`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const items = data.items || [];
+    if (!items.length) {
+      feed.innerHTML = `<div style="opacity:.8;padding:16px;">No videos found.</div>`;
+      return;
+    }
+
+    feed.innerHTML = "";
+    items.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const header = `
+        <div class="card-header">
+          <div class="title">${escapeHtml(item.title || "Video")}</div>
+          <div class="platform">${item.platform || "Source"}</div>
+        </div>
+      `;
+
+      let content = "";
+
+      if (item.platform === "YouTube" && item.videoId) {
+        content = `
+          <div class="video-box">
+            <iframe
+              src="https://www.youtube.com/embed/${item.videoId}?autoplay=0&mute=1&controls=1&playsinline=1"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen>
+            </iframe>
+          </div>
+        `;
+      } else if (item.videoUrl) {
+        content = `
+          <div class="video-box">
+            <video controls playsinline preload="metadata">
+              <source src="${item.videoUrl}" type="video/mp4" />
+            </video>
+          </div>
+        `;
+      } else {
+        content = `
+          <div class="video-box">
+            <div style="padding:18px;display:flex;align-items:center;justify-content:center;height:100%;opacity:.8;">
+              Video preview not available
+            </div>
+          </div>
+        `;
       }
-    </script>
-  </body>
+
+      const footer = `
+        <div class="card-footer">
+          <div class="meta">${item.category ? "Category: " + item.category.toUpperCase() : ""}</div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn" onclick="openLink('${item.link || ""}')">Open</button>
+            <button class="btn" onclick="copyLink('${item.link || ""}')">Copy</button>
+          </div>
+        </div>
+      `;
+
+      card.innerHTML = header + content + footer;
+      feed.appendChild(card);
+    });
+  }
+
+  function openLink(link) {
+    if (!link) return alert("No link available");
+    window.open(link, "_blank");
+  }
+
+  async function copyLink(link) {
+    if (!link) return alert("No link available");
+    await navigator.clipboard.writeText(link);
+    alert("Link copied!");
+  }
+
+  function escapeHtml(text) {
+    return String(text)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  loadBtn.addEventListener("click", loadContent);
+
+  // default load
+  query.value = currentQ;
+  loadContent();
+</script>
+
+</body>
 </html>
