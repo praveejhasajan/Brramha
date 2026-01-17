@@ -3,27 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ReelSwipe v2</title>
+  <title>ReelSwipe v3</title>
+
   <style>
     *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-    body{background:#0b0f1a;color:#fff}
+    body{background:#0b0f1a;color:#fff;overflow-x:hidden}
+
     .topbar{
-      position:sticky;top:0;z-index:99;
-      background:rgba(11,15,26,.9);
+      position:sticky;top:0;z-index:999;
+      background:rgba(11,15,26,.92);
       backdrop-filter: blur(10px);
-      padding:14px 16px;
+      padding:12px 14px;
       display:flex;align-items:center;justify-content:space-between;
       border-bottom:1px solid rgba(255,255,255,.08)
     }
     .brand{font-size:20px;font-weight:900}
     .brand span{color:#00d4ff}
-    .controls{display:flex;gap:10px;align-items:center}
+
+    .controls{display:flex;gap:8px;align-items:center}
     input,select{
       padding:8px 10px;border-radius:10px;border:none;outline:none;
       background:rgba(255,255,255,.08);color:#fff
     }
+    .btn{
+      padding:8px 10px;border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:#fff;cursor:pointer;font-size:12px
+    }
+    .btn:hover{background:rgba(255,255,255,.10)}
+
     .tabs{
-      display:flex;gap:10px;padding:12px 14px;overflow-x:auto;
+      display:flex;gap:10px;padding:10px 14px;overflow-x:auto;
       border-bottom:1px solid rgba(255,255,255,.08)
     }
     .tab{
@@ -32,36 +43,78 @@
       background:rgba(255,255,255,.05);
       color:#fff;cursor:pointer;white-space:nowrap;font-size:13px
     }
-    .tab.active{background:#00d4ff;color:#000;font-weight:800}
-    .feed{padding:14px;display:flex;flex-direction:column;gap:16px}
+    .tab.active{background:#00d4ff;color:#000;font-weight:900}
+    .tabs::-webkit-scrollbar{display:none}
+
+    /* Reel Feed (snap like Instagram) */
+    .feed{
+      height: calc(100vh - 110px);
+      overflow-y: auto;
+      scroll-snap-type: y mandatory;
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+    }
+
     .card{
+      scroll-snap-align: start;
       background:rgba(255,255,255,.04);
       border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;overflow:hidden;
-      box-shadow:0 10px 30px rgba(0,0,0,.35)
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+      min-height: calc(100vh - 140px);
+      display:flex;
+      flex-direction:column;
     }
-    .card-header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px}
-    .title{font-size:14px;font-weight:800;max-width:75%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .platform{font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
-    .video-box{width:100%;aspect-ratio:9/16;background:#000;position:relative}
-    iframe,video{width:100%;height:100%;border:0}
-    .card-footer{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;gap:10px}
+
+    .card-header{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:12px 14px
+    }
+    .title{
+      font-size:14px;font-weight:800;max-width:75%;
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+    }
+    .platform{
+      font-size:12px;padding:6px 10px;border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12)
+    }
+
+    .video-box{
+      width:100%;
+      flex:1;
+      background:#000;
+      position:relative;
+    }
+    iframe,video{
+      width:100%;
+      height:100%;
+      border:0;
+      object-fit: cover;
+    }
+
+    .card-footer{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:12px 14px;gap:10px
+    }
     .meta{font-size:12px;opacity:.8}
-    .btn{
-      padding:8px 10px;border-radius:12px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.06);
-      color:#fff;cursor:pointer;font-size:12px
+    .actions{display:flex;gap:10px}
+
+    .loading{
+      text-align:center;
+      padding:14px;
+      opacity:.75;
     }
-    .btn:hover{background:rgba(255,255,255,.10)}
-    .footer{text-align:center;padding:18px 10px;font-size:12px;opacity:.7}
-    .tabs::-webkit-scrollbar{display:none}
   </style>
 </head>
+
 <body>
 
   <div class="topbar">
-    <div class="brand">Reel<span>Swipe</span> v2</div>
+    <div class="brand">Reel<span>Swipe</span> v3</div>
 
     <div class="controls">
       <select id="source">
@@ -72,136 +125,43 @@
       </select>
 
       <input id="query" placeholder="Search..." />
+      <button class="btn" id="trendingBtn">Trending Now</button>
       <button class="btn" id="loadBtn">Load</button>
     </div>
   </div>
 
   <div class="tabs">
-    <button class="tab active" data-q="trending">Trending</button>
-    <button class="tab" data-q="travel">Travel</button>
-    <button class="tab" data-q="business">Business</button>
-    <button class="tab" data-q="food">Food</button>
-    <button class="tab" data-q="funny">Funny</button>
-    <button class="tab" data-q="motivation">Motivation</button>
+    <button class="tab active" data-q="trending shorts">Trending</button>
+    <button class="tab" data-q="travel shorts">Travel</button>
+    <button class="tab" data-q="business shorts">Business</button>
+    <button class="tab" data-q="food shorts">Food</button>
+    <button class="tab" data-q="funny shorts">Funny</button>
+    <button class="tab" data-q="motivation shorts">Motivation</button>
   </div>
 
   <div class="feed" id="feed"></div>
-
-  <div class="footer">
-    ReelSwipe v2 © 2026 | Auto fetch from YouTube + Reddit + Pexels + Pixabay
-  </div>
+  <div class="loading" id="loading" style="display:none;">Loading more...</div>
 
 <script>
   const feed = document.getElementById("feed");
   const source = document.getElementById("source");
   const query = document.getElementById("query");
   const loadBtn = document.getElementById("loadBtn");
+  const trendingBtn = document.getElementById("trendingBtn");
   const tabs = document.querySelectorAll(".tab");
+  const loading = document.getElementById("loading");
 
-  let currentQ = "trending";
+  let currentQ = "trending shorts";
+  let isLoading = false;
 
-  tabs.forEach(t => {
-    t.addEventListener("click", () => {
-      tabs.forEach(x => x.classList.remove("active"));
-      t.classList.add("active");
-      currentQ = t.dataset.q;
-      query.value = currentQ;
-      loadContent();
-    });
-  });
+  // pagination
+  let ytNextPageToken = null;
 
-  async function loadContent() {
-    feed.innerHTML = `<div style="opacity:.8;padding:16px;">Loading...</div>`;
-
-    const q = query.value.trim() || currentQ;
-    const s = source.value;
-
-    let url = "";
-
-    if (s === "youtube") url = `/api/youtube?q=${encodeURIComponent(q)}&max=12`;
-    if (s === "pexels") url = `/api/pexels?q=${encodeURIComponent(q)}&perPage=12`;
-    if (s === "pixabay") url = `/api/pixabay?q=${encodeURIComponent(q)}&perPage=12`;
-    if (s === "reddit") url = `/api/reddit?subreddit=${encodeURIComponent("videos")}&limit=15`;
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    const items = data.items || [];
-    if (!items.length) {
-      feed.innerHTML = `<div style="opacity:.8;padding:16px;">No videos found.</div>`;
-      return;
-    }
-
-    feed.innerHTML = "";
-    items.forEach(item => {
-      const card = document.createElement("div");
-      card.className = "card";
-
-      const header = `
-        <div class="card-header">
-          <div class="title">${escapeHtml(item.title || "Video")}</div>
-          <div class="platform">${item.platform || "Source"}</div>
-        </div>
-      `;
-
-      let content = "";
-
-      if (item.platform === "YouTube" && item.videoId) {
-        content = `
-          <div class="video-box">
-            <iframe
-              src="https://www.youtube.com/embed/${item.videoId}?autoplay=0&mute=1&controls=1&playsinline=1"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen>
-            </iframe>
-          </div>
-        `;
-      } else if (item.videoUrl) {
-        content = `
-          <div class="video-box">
-            <video controls playsinline preload="metadata">
-              <source src="${item.videoUrl}" type="video/mp4" />
-            </video>
-          </div>
-        `;
-      } else {
-        content = `
-          <div class="video-box">
-            <div style="padding:18px;display:flex;align-items:center;justify-content:center;height:100%;opacity:.8;">
-              Video preview not available
-            </div>
-          </div>
-        `;
-      }
-
-      const footer = `
-        <div class="card-footer">
-          <div class="meta">${item.category ? "Category: " + item.category.toUpperCase() : ""}</div>
-          <div style="display:flex;gap:10px;">
-            <button class="btn" onclick="openLink('${item.link || ""}')">Open</button>
-            <button class="btn" onclick="copyLink('${item.link || ""}')">Copy</button>
-          </div>
-        </div>
-      `;
-
-      card.innerHTML = header + content + footer;
-      feed.appendChild(card);
-    });
-  }
-
-  function openLink(link) {
-    if (!link) return alert("No link available");
-    window.open(link, "_blank");
-  }
-
-  async function copyLink(link) {
-    if (!link) return alert("No link available");
-    await navigator.clipboard.writeText(link);
-    alert("Link copied!");
-  }
+  // observer for autoplay
+  let observer;
 
   function escapeHtml(text) {
-    return String(text)
+    return String(text || "")
       .replaceAll("&", "&amp;")
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;")
@@ -209,11 +169,171 @@
       .replaceAll("'", "&#039;");
   }
 
-  loadBtn.addEventListener("click", loadContent);
+  function buildCard(item) {
+    const card = document.createElement("div");
+    card.className = "card";
 
-  // default load
+    const header = `
+      <div class="card-header">
+        <div class="title">${escapeHtml(item.title || "Video")}</div>
+        <div class="platform">${escapeHtml(item.platform || "Source")}</div>
+      </div>
+    `;
+
+    let content = "";
+
+    if (item.platform === "YouTube" && item.videoId) {
+      content = `
+        <div class="video-box">
+          <iframe
+            class="ytframe"
+            data-video="1"
+            src="https://www.youtube.com/embed/${item.videoId}?autoplay=0&mute=1&controls=1&playsinline=1"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen>
+          </iframe>
+        </div>
+      `;
+    } else if (item.videoUrl) {
+      content = `
+        <div class="video-box">
+          <video class="autoplayVideo" playsinline muted controls preload="metadata">
+            <source src="${item.videoUrl}" type="video/mp4" />
+          </video>
+        </div>
+      `;
+    } else {
+      content = `
+        <div class="video-box" style="display:flex;align-items:center;justify-content:center;opacity:.8;">
+          Preview not available
+        </div>
+      `;
+    }
+
+    const footer = `
+      <div class="card-footer">
+        <div class="meta">${item.category ? "Category: " + item.category.toUpperCase() : ""}</div>
+        <div class="actions">
+          <button class="btn" onclick="openLink('${item.link || ""}')">Open</button>
+          <button class="btn" onclick="copyLink('${item.link || ""}')">Copy</button>
+        </div>
+      </div>
+    `;
+
+    card.innerHTML = header + content + footer;
+    return card;
+  }
+
+  window.openLink = function(link){
+    if (!link) return alert("No link available");
+    window.open(link, "_blank");
+  }
+
+  window.copyLink = async function(link){
+    if (!link) return alert("No link available");
+    await navigator.clipboard.writeText(link);
+    alert("Link copied!");
+  }
+
+  function setupAutoplayObserver() {
+    if (observer) observer.disconnect();
+
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const video = entry.target;
+        if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
+          // play
+          video.play().catch(()=>{});
+        } else {
+          // pause
+          video.pause();
+        }
+      });
+    }, { threshold: [0.3, 0.7, 0.9] });
+
+    document.querySelectorAll("video.autoplayVideo").forEach(v => observer.observe(v));
+  }
+
+  async function fetchItems(reset = false) {
+    if (isLoading) return;
+    isLoading = true;
+    loading.style.display = "block";
+
+    if (reset) {
+      feed.innerHTML = "";
+      ytNextPageToken = null;
+    }
+
+    const q = (query.value.trim() || currentQ);
+    const s = source.value;
+
+    let url = "";
+
+    if (s === "youtube") {
+      url = `/api/youtube?q=${encodeURIComponent(q)}&max=8`;
+      if (ytNextPageToken) url += `&pageToken=${encodeURIComponent(ytNextPageToken)}`;
+    }
+
+    if (s === "pexels") url = `/api/pexels?q=${encodeURIComponent(q.replace(" shorts",""))}&perPage=8`;
+    if (s === "pixabay") url = `/api/pixabay?q=${encodeURIComponent(q.replace(" shorts",""))}&perPage=8`;
+    if (s === "reddit") url = `/api/reddit?subreddit=${encodeURIComponent("videos")}&limit=12`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const items = data.items || [];
+    if (!items.length && reset) {
+      feed.innerHTML = `<div class="loading">No videos found.</div>`;
+    }
+
+    // update token
+    if (s === "youtube") ytNextPageToken = data.nextPageToken || null;
+
+    items.forEach(item => feed.appendChild(buildCard(item)));
+
+    setupAutoplayObserver();
+
+    isLoading = false;
+    loading.style.display = "none";
+  }
+
+  // Load button
+  loadBtn.addEventListener("click", () => {
+    currentQ = query.value.trim() || currentQ;
+    fetchItems(true);
+  });
+
+  // Trending now
+  trendingBtn.addEventListener("click", () => {
+    currentQ = "trending shorts";
+    query.value = currentQ;
+    fetchItems(true);
+  });
+
+  // Tabs
+  tabs.forEach(t => {
+    t.addEventListener("click", () => {
+      tabs.forEach(x => x.classList.remove("active"));
+      t.classList.add("active");
+      currentQ = t.dataset.q;
+      query.value = currentQ;
+      fetchItems(true);
+    });
+  });
+
+  // Infinite scroll
+  feed.addEventListener("scroll", () => {
+    const nearBottom = feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 300;
+    if (nearBottom && !isLoading) {
+      // For YouTube, load next page if token exists
+      if (source.value === "youtube" && !ytNextPageToken) return;
+      fetchItems(false);
+    }
+  });
+
+  // initial load
   query.value = currentQ;
-  loadContent();
+  fetchItems(true);
 </script>
 
 </body>
